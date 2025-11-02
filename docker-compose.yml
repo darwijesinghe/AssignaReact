@@ -1,0 +1,67 @@
+services:
+  # .NET API Service
+  assigna_api:
+    container_name: assigna_api
+    build:
+      context: .                                        # Path to the API project (folder containing Dockerfile)
+      dockerfile: ./API/Api/Dockerfile                  # Dockerfile to build the API image
+    ports:
+      - "8080:80"                                       # API available on http://localhost:8080
+    depends_on:
+      assigna_sql:
+        condition: service_started                      # Wait for database container
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production               # Tells .NET to load appsettings.Production.json
+
+      # Database Config (overrides appsettings)
+      - ConnectionStrings__DefaultConnection=Server=assigna_sql,1433;Database=ASI;User ID=sa;Password=${DB_PASSWORD};TrustServerCertificate=True;
+
+      # JWT Config
+      - JWTConfig__Secret=${JWT_SECRET}
+      - JWTConfig__Audience=${JWT_AUDIENCE}
+      - JWTConfig__Issuer=${JWT_ISSUER}
+
+      # Email Config
+      - MailConfigurations__UserName=${MAIL_USERNAME}
+      - MailConfigurations__Password=${MAIL_PASSWORD}
+      - MailConfigurations__Port=${PORT}
+      - MailConfigurations__Server=${SERVER}
+
+    networks:
+      - assigna_net
+
+  # Client app
+  assigna_client:
+    build:
+      context: ./Client                                             # Path to React project (folder with its Dockerfile)
+      dockerfile: Dockerfile                                        # Dockerfile for React → Nginx multi-stage build
+      args:
+        REACT_APP_API_URL: ${REACT_APP_API_URL}                     # Value comes from .env file next to compose
+        REACT_APP_GOOGLE_CLIENT_ID: ${REACT_APP_GOOGLE_CLIENT_ID}   # Value comes from .env file next to compose
+    ports:
+      - "3000:80"                                                   # Browser will open http://localhost:3000
+    depends_on:
+      assigna_api:
+        condition: service_started                                  # Wait for API container
+
+  # SQL server container
+  assigna_sql:
+    container_name: assigna_sql
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    environment:
+      - SA_PASSWORD=${DB_PASSWORD}                # Uses same password from .env file
+      - ACCEPT_EULA=Y
+    ports:
+      - "1433:1433"                               # Exposes DB to machine (optional)
+    volumes:
+      - usersqlvolume:/var/opt/mssql              # Persist data
+    networks:
+      - assigna_net
+
+# Shared network between container
+networks:
+  assigna_net:
+    driver: bridge
+
+volumes:
+  usersqlvolume:                                      # Persistent storage for the SQL Server database used by the services
