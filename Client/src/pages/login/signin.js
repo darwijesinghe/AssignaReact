@@ -1,7 +1,7 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useState, useEffect } from "react";
-import Google from "../../icons/icon-google";
+import { Google, Eye, EyeOff } from "../../icons";
 import { jwtDecode } from "jwt-decode";
 import { useGoogleLogin } from '@react-oauth/google';
 
@@ -24,12 +24,15 @@ export default function SignIn() {
             password: "admin@123"
         }
     });
-    const { apiPost }                            = useApi();
-    const [apiResponse, setApiResponse]          = useState({ message: null, isError: false });
-    const { setLoading }                         = useLoading(true);
-    const navigate                               = useNavigate();
-    const location                               = useLocation();
+    const { apiPost }                                                          = useApi();
+    const [apiResponse, setApiResponse]                                        = useState({ message: null, isError: false });
+    const { setLoading }                                                       = useLoading(true);
+    const navigate                                                             = useNavigate();
+    const location                                                             = useLocation();
     const { accessToken, setAccessToken, setRefreshToken, setRole, setLetter } = useAuth();
+
+    const [showPassword, setShowPassword]                                      = useState(false);
+    const type                                                                 = showPassword ? "text" : "password";
 
     // Return url
     const from = location.state?.from?.pathname || "/tasks";
@@ -179,8 +182,14 @@ export default function SignIn() {
                             </div>
                             <div className="password">
                                 <Link to="/reset-link" role="link">Forgot password?</Link>
-                                <div className="input_control">
-                                    <input type="text" id="password" role="textbox" placeholder="Password" {...register("password", { required: "Password is required" })} />
+                                <div className="input_control pw_input_control">
+                                    <input type={type} id="password" role="textbox" placeholder="Password" {...register("password", { required: "Password is required" })} />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                    >
+                                        {showPassword ? <EyeOff /> : <Eye />}
+                                    </button>
                                     {errors.password && <span className="val_msg">{errors.password.message}</span>}
                                 </div>
                             </div>

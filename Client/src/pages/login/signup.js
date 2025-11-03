@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { useGoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from "jwt-decode";
-import Google from "../../icons/icon-google";
+import { Google, Eye, EyeOff } from "../../icons";
 
 import { useApi } from "../../services/api-service";
 import { useLoading } from "../../context/loading-context";
@@ -31,6 +31,9 @@ export default function SignUp() {
     const { loading, setLoading }                = useLoading(true);
     const { setAccessToken, setRole, setLetter } = useAuth();
     const navigate                               = useNavigate();
+    
+    const [showPassword, setShowPassword]        = useState(false);
+    const inputType                              = showPassword ? "text" : "password";
     
     // Return url
     const from = location.state?.from?.pathname || "/tasks";
@@ -172,8 +175,14 @@ export default function SignUp() {
                                 {errors.email && <span className="val_msg">{errors.email.message}</span>}
                             </div>
                             <div className="password">
-                                <div className="input_control">
-                                    <input type="text" id="password" role="textbox" placeholder="Password" {...register("password", { required: "Password is required" })} />
+                                <div className="input_control pw_input_control">
+                                    <input type={inputType} id="password" role="textbox" placeholder="Password" {...register("password", { required: "Password is required" })} />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                    >
+                                        {showPassword ? <EyeOff /> : <Eye />}
+                                    </button>
                                     {errors.password && <span className="val_msg">{errors.password.message}</span>}
                                 </div>
                                 <small className="pw_instruct">Passwords must contain at least five characters, including at least 1 letter and 1 number.</small>

@@ -694,6 +694,25 @@ input[type="radio"]:checked::before {
   margin: 0 0 var(--m-2);
 }
 
+.pw_input_control {
+  position: relative;
+}
+
+.pw_input_control input {
+  padding-right: 40px;
+}
+
+.pw_input_control button {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  line-height: 0;
+}
+
 .icon {
   font-size: 30px;
   line-height: 1;
