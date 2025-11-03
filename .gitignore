@@ -369,3 +369,6 @@ appsettings.Production.json
 # Ignore .env files
 .env.development
 /.env
+
+# React build output
+/build
